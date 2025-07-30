@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laboratório de Astrobiologia IFCE Acaraú - Catálogo de Exoplanetas</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; color: #333; }
+    header { background: #264653; color: #fff; padding: 1rem 0; position: sticky; top: 0; z-index: 1000; }
+    header .container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; display: flex; align-items: center; justify-content: space-between; }
+    .header-left { display: flex; align-items: center; }
+    .logo-container { width: 70px; height: 70px; background: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 1rem; padding: 5px; }
+    .logo-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .header-left h1 { font-size: 1.5rem; color: #fff; }
+    nav ul { list-style: none; display: flex; gap: 1.5rem; }
+    nav a { color: #fff; text-decoration: none; font-weight: bold; padding-bottom: 5px; border-bottom: 2px solid transparent; transition: border-color 0.3s; }
+    nav a.active, nav a:hover { border-color: #e9c46a; }
+
+    .main-container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+    main { background: #fff; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    h2 { color: #2a9d8f; margin-bottom: 1rem; }
+    .controls { margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; }
+    .controls .control-group { display: flex; flex-direction: column; }
+    .controls label { font-weight: bold; margin-bottom: 0.25rem; }
+    .controls select, .controls input { padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc; font-size: 1rem; }
+    .table-container { width: 100%; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; }
+    th { background: #e9c46a; color: #333; cursor: pointer; user-select: none; }
+    th:hover { background: #f4a261; }
+    tbody tr:nth-child(even) { background: #f8f9fa; }
+    tbody tr:hover { background: #e0e0e0; }
+    footer { background: #264653; color: #fff; text-align: center; padding: 2rem 1rem; margin-top: 2rem; }
+    footer a { color: #e9c46a; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <div class="header-left">
+        <div class="logo-container">
+          <img src="../logo.png" alt="Logo do Laboratório de Astrobiologia">
+        </div>
+        <h1>Catálogo de Mundos Habitáveis</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="../index.html">Início</a></li>
+          <li><a href="habitaveis.html" class="active">Catálogo</a></li>
+          <li><a href="#">Sobre</a></li>
+          <li><a href="#">Contato</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="main-container">
+    <main>
+      <h2>Explore Planetas Potencialmente Habitáveis</h2>
+      <div class="controls">
+        <div class="control-group">
+          <label for="search-input">Pesquisar por Nome:</label>
+          <input type="text" id="search-input" placeholder="Digite o nome do planeta...">
+        </div>
+        <div class="control-group">
+          <label for="zone-filter">Filtrar por Zona Habitável:</label>
+          <select id="zone-filter">
+            <option value="all">Tabela Completa</option>
+            <option value="conservative">Zona Conservadora (ESI > 0.85)</option>
+            <option value="optimistic">Zona Otimista (ESI <= 0.85)</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Laboratório de Astrobiologia - IFCE Campus Acaraú</p>
+    <p>Dados de exoplanetas fornecidos pelo <a href="https://phl.upr.edu/" target="_blank">PHL da UPR</a>. Faça o download das tabelas completas no site oficial.</p>
+  </footer>
+
+  <script>
+      const tbody = document.querySelector('tbody');
+      const thead = document.querySelector('thead');
+      const zoneFilter = document.querySelector('#zone-filter');
+      const searchInput = document.querySelector('#search-input');
+
+      const header = ['Nome', 'Tipo', 'Deteção', 'Massa (Terra)', 'Raio (Terra)', 'Fluxo (Solar)', 'T_Superficie', 'Periodo (dias)', 'Distancia (ly)', 'Ano (bi)', 'ESI'];
+      
+      // Tabela completa de exoplanetas, ordenada por ESI (maior para menor)
+      const rows = [
+        ["Teegarden's Star b", 'M Warm Terran', 'Radial Velocity', 1.05, 1.0, 1.15, 299.41, 4.91, 12.48, 8.0, 0.93],
+        ['TOI-700 d', 'M Warm Terran', 'Transit', 1.72, 1.14, 0.71, 266.31, 37.42, 101.52, 1.5, 0.93],
+        ['TOI-700 e', 'M Warm Terran', 'Transit', 0.82, 0.95, 1.28, 305.69, 27.81, 101.52, 1.5, 0.91],
+        ['LP 890-9 c', 'M Warm Terran', 'Transit', 2.35, 1.37, 0.91, 285.39, 8.46, 105.52, 7.0, 0.91],
+        ["Teegarden's Star c", 'M Warm Terran', 'Radial Velocity', 1.11, 1.02, 0.37, 230.71, 11.41, 12.48, 8.0, 0.9],
+        ['TRAPPIST-1 d', 'M Warm Terran', 'Transit', 0.41, 0.77, 1.14, 287.85, 4.05, 39.15, 7.6, 0.9],
+        ['Kepler-1649 c', 'M Warm Terran', 'Transit', 1.2, 1.06, 0.75, 270.84, 19.53, 300.86, 0.0, 0.9],
+        ['K2-72 e', 'M Warm Terran', 'Transit', 2.21, 1.29, 1.11, 296.0, 24.16, 217.1, 1.0, 0.9],
+        ['TOI-715 b', 'M Warm Superterran', 'Transit', 3.0, 1.55, 0.71, 266.88, 19.29, 137.07, 6.6, 0.9],
+        ['GJ 3323 b', 'M Warm Superterran', 'Radial Velocity', 2.02, 1.26, 1.15, 299.41, 5.36, 17.41, 2.0, 0.9],
+        ['Wolf 1069 b', 'M Warm Terran', 'Radial Velocity', 1.26, 1.08, 0.65, 250.3, 15.56, 31.2, 5.0, 0.89],
+        ['GJ 1061 d', 'M Warm Terran', 'Radial Velocity', 1.64, 1.16, 0.69, 246.58, 13.03, 11.98, 7.0, 0.88],
+        ['GJ 1061 b', 'M Hot Terran', 'Radial Velocity', 1.38, 1.09, 1.45, 315.48, 3.2, 11.98, 7.0, 0.88],
+        ['Ross 128 b', 'M Warm Terran', 'Radial Velocity', 1.8, 1.21, 1.38, 311.23, 9.87, 11.02, 5.0, 0.86],
+        ['GJ 1002 b', 'M Warm Terran', 'Radial Velocity', 1.08, 1.03, 1.03, 292.0, 10.35, 15.76, 5.0, 0.86],
+        ['Proxima Cen b', 'M Warm Terran', 'Radial Velocity', 1.27, 1.07, 0.75, 270.84, 11.19, 4.24, 5.0, 0.85],
+        ['TRAPPIST-1 e', 'M Warm Terran', 'Transit', 0.62, 0.91, 0.65, 244.25, 6.1, 39.15, 7.6, 0.85],
+        ['Kepler-442 b', 'K Warm Superterran', 'Transit', 2.34, 1.34, 0.7, 265.43, 112.31, 1205.07, 2.9, 0.84],
+        ['GJ 667 C c', 'M Warm Superterran', 'Radial Velocity', 4.14, 1.85, 0.88, 281.85, 28.14, 23.16, 2.0, 0.84],
+        ['Kepler-1656 b', 'G Warm Superterran', 'Transit', 4.8, 2.04, 1.15, 299.41, 31.42, 2034.05, 3.5, 0.84],
+        ['Kepler-452 b', 'G Warm Superterran', 'Transit', 5.0, 1.63, 1.1, 295.43, 384.84, 1827.02, 6.0, 0.83],
+        ['LHS 1140 c', 'M Warm Superterran', 'Radial Velocity', 1.81, 1.21, 0.48, 242.44, 3.78, 48.75, 5.0, 0.82],
+        ['HD 216520 b', 'K Warm Superterran', 'Radial Velocity', 1.5, 1.12, 1.31, 307.64, 3.01, 67.24, 2.9, 0.81],
+        ['GJ 273 b', 'M Warm Terran', 'Radial Velocity', 2.89, 1.52, 0.8, 275.52, 18.65, 12.29, 6.0, 0.77],
+        ['Kepler-62 e', 'K Warm Superterran', 'Transit', 4.5, 1.61, 1.1, 287.28, 122.39, 989.87, 7.0, 0.77],
+        ['Kepler-1540 b', 'G Warm Superterran', 'Transit', 4.7, 2.0, 0.94, 286.53, 125.41, 1069.24, 4.5, 0.77],
+        ['Kepler-186 e', 'M Warm Terran', 'Transit', 0.91, 0.96, 0.96, 288.29, 22.41, 581.98, 4.0, 0.77],
+        ['Ross 508 b', 'M Warm Superterran', 'Radial Velocity', 4.0, 1.81, 1.4, 312.34, 10.77, 36.57, 7.0, 0.77],
+        ['Wolf 1061 c', 'M Warm Superterran', 'Radial Velocity', 4.25, 1.88, 1.34, 309.28, 17.87, 14.04, 5.0, 0.76],
+        ['Kepler-1638 b', 'G Warm Superterran', 'Transit', 4.2, 1.87, 0.88, 281.85, 259.33, 4978.3, 4.0, 0.76],
+        ['Kepler-1090 b', 'G Warm Superterran', 'Transit', 7.5, 2.63, 0.99, 289.43, 198.81, 2262.38, 4.0, 0.75],
+        ['Kepler-1652 b', 'M Warm Superterran', 'Transit', 2.1, 1.28, 0.32, 223.28, 38.1, 822.37, 3.5, 0.74],
+        ['Kepler-1653 b', 'K Warm Superterran', 'Transit', 5.9, 2.29, 0.81, 276.09, 140.23, 2470.82, 4.5, 0.74],
+        ['Kepler-1229 b', 'M Warm Superterran', 'Transit', 2.7, 1.4, 0.49, 243.01, 86.83, 874.62, 3.7, 0.73],
+        ['Kepler-1544 b', 'K Warm Superterran', 'Transit', 2.9, 1.52, 0.39, 232.92, 168.81, 1138.89, 2.7, 0.73],
+        ['K2-18 b', 'M Warm Superterran', 'Transit', 8.63, 2.71, 0.89, 283.57, 32.94, 124.03, 0.1, 0.73],
+        ['Kepler-22 b', 'G Warm Superterran', 'Transit', 6.6, 2.49, 0.89, 283.0, 289.86, 619.43, 2.0, 0.71],
+        ['Kepler-1410 b', 'K Warm Superterran', 'Transit', 6.7, 2.51, 0.8, 275.52, 60.67, 3624.96, 2.9, 0.71],
+        ['GJ 357 d', 'M Warm Superterran', 'Radial Velocity', 6.1, 2.34, 0.38, 231.25, 55.66, 31.02, 5.0, 0.7],
+        ['Kepler-705 b', 'M Warm Superterran', 'Transit', 3.9, 1.78, 0.4, 233.49, 56.06, 3219.6, 3.0, 0.7],
+        ['GJ 887 c', 'M Warm Superterran', 'Radial Velocity', 7.6, 2.65, 0.8, 275.52, 21.79, 10.72, 7.0, 0.7],
+        ['GJ 1061 c', 'M Warm Terran', 'Radial Velocity', 1.75, 1.19, 0.9, 284.14, 6.69, 11.98, 7.0, 0.69],
+        ['GJ 3323 c', 'M Warm Superterran', 'Radial Velocity', 2.31, 1.36, 0.29, 218.06, 40.54, 17.41, 2.0, 0.69],
+        ['TRAPPIST-1 f', 'M Warm Terran', 'Transit', 0.68, 0.98, 0.38, 218.63, 9.21, 39.15, 7.6, 0.68],
+        ['GJ 180 d', 'M Warm Superterran', 'Radial Velocity', 7.9, 2.7, 0.79, 274.38, 106.4, 39.37, 7.0, 0.68],
+        ['Kepler-298 d', 'K Warm Superterran', 'Transit', 1.9, 1.23, 0.25, 212.98, 77.48, 1691.75, 3.7, 0.68],
+        ['GJ 1002 c', 'M Warm Terran', 'Radial Velocity', 1.36, 1.1, 0.26, 208.0, 21.4, 15.76, 5.0, 0.68],
+        ['Kepler-62 f', 'K Warm Superterran', 'Transit', 2.8, 1.41, 0.41, 235.89, 267.29, 989.87, 7.0, 0.67],
+        ['HD 40307 g', 'K Warm Superterran', 'Radial Velocity', 7.1, 2.56, 0.67, 255.72, 197.8, 42.19, 4.5, 0.66],
+        ['TOI-904 c', 'M Warm Superterran', 'Transit', 5.34, 2.17, 0.52, 244.82, 84.0, 150.32, 1.5, 0.66],
+        ['Kepler-440 b', 'K Warm Superterran', 'Transit', 7.7, 2.67, 0.43, 237.56, 101.11, 1205.07, 4.1, 0.65],
+        ['Kepler-186 f', 'M Warm Terran', 'Transit', 1.47, 1.11, 0.32, 223.85, 129.94, 581.98, 4.0, 0.61],
+        ['Kepler-296 e', 'M Warm Superterran', 'Transit', 3.32, 1.59, 0.35, 227.79, 34.14, 1089.85, 4.2, 0.6],
+        ['GJ 667 C f', 'M Warm Superterran', 'Radial Velocity', 2.7, 1.4, 0.35, 227.22, 39.03, 23.16, 2.0, 0.6],
+        ['Kepler-443 b', 'K Warm Superterran', 'Transit', 8.2, 2.75, 0.48, 242.44, 177.68, 2541.0, 2.3, 0.6],
+        ['TRAPPIST-1 g', 'M Warm Terran', 'Transit', 1.34, 1.13, 0.26, 201.2, 12.35, 39.15, 7.6, 0.58],
+        ['Kepler-296 f', 'M Warm Superterran', 'Transit', 2.0, 1.25, 0.15, 184.82, 63.34, 1089.85, 4.2, 0.54],
+        ['GJ 667 C e', 'M Warm Superterran', 'Radial Velocity', 3.1, 1.56, 0.21, 199.49, 62.24, 23.16, 2.0, 0.53],
+        ['Kepler-174 d', 'K Warm Superterran', 'Transit', 5.5, 2.19, 0.42, 236.46, 247.35, 1224.62, 3.5, 0.51],
+        ['Kepler-155 c', 'M Warm Superterran', 'Transit', 6.3, 2.22, 0.3, 219.77, 52.67, 1079.03, 3.8, 0.5],
+        ['55 Cnc e', 'G Hot Superterran', 'Transit', 8.57, 1.99, 208.8, 2800.0, 0.74, 40.28, 10.3, 0.47],
+        ['GJ 367 b', 'M Hot Terran', 'Transit', 0.55, 0.72, 60.6, 1745.0, 0.32, 30.72, 'N/A', 0.33],
+        ['GJ 486 b', 'M Hot Terran', 'Transit', 2.82, 1.31, 18.0, 1229.0, 1.47, 26.21, 'N/A', 0.3],
+        ['GJ 1132 b', 'M Hot Terran', 'Transit', 1.66, 1.16, 22.6, 1313.0, 1.63, 39.37, 5.0, 0.3],
+        ['CoRoT-7 c', 'K Hot Superterran', 'Radial Velocity', 8.4, 1.97, 23.9, 1340.0, 3.7, 489.5, 1.3, 0.29],
+        ['GJ 3929 b', 'M Hot Terran', 'Transit', 1.21, 1.09, 2.6, 1368.0, 2.62, 51.56, 'N/A', 0.29],
+        ['GJ 9827 b', 'K Hot Terran', 'Transit', 1.54, 1.13, 20.8, 1280.0, 1.21, 97.0, 'N/A', 0.28],
+        ['GJ 1252 b', 'M Hot Terran', 'Transit', 2.09, 1.19, 4.4, 1552.0, 0.52, 65.15, 'N/A', 0.28],
+        ['GJ 357 b', 'M Hot Superterran', 'Transit', 1.84, 1.22, 16.1, 1184.0, 3.93, 31.02, 5.0, 0.27],
+        ['GJ 3634 b', 'M Hot Superterran', 'Transit', 7.3, 1.8, 7.0, 1680.0, 2.65, 64.07, 3.0, 0.24],
+        ['GJ 1214 b', 'M Hot Neptunian', 'Transit', 6.4, 2.7, 23.9, 1340.0, 1.58, 47.54, 6.0, 0.23],
+        ['GJ 9827 d', 'K Hot Superterran', 'Transit', 4.0, 2.08, 2.5, 1350.0, 6.2, 97.0, 'N/A', 0.22],
+        ['GJ 9827 c', 'K Hot Superterran', 'Transit', 0.6, 0.8, 5.2, 1603.0, 3.65, 97.0, 'N/A', 0.21],
+        ['Gliese 436 b', 'M Hot Neptunian', 'Transit', 22.2, 4.2, 6.4, 1650.0, 2.64, 33.39, 11.0, 0.2],
+        ['AU Mic b', 'M Hot Neptunian', 'Transit', 20.1, 4.8, 1.09, 794.0, 8.46, 31.93, 0.02, 0.18],
+        ['AU Mic c', 'M Hot Neptunian', 'Transit', 10.0, 3.8, 0.59, 656.0, 18.86, 31.93, 0.02, 0.17],
+        ['DMPP-1 c', 'G Hot Neptunian', 'Radial Velocity', 3.6, 2.0, 4.8, 1582.0, 1.9, 203.4, 'N/A', 0.17],
+        ['GJ 357 c', 'M Hot Superterran', 'Radial Velocity', 3.4, 1.6, 3.7, 1498.0, 9.13, 31.02, 5.0, 0.17],
+        ['GJ 3470 b', 'M Hot Neptunian', 'Transit', 13.9, 4.3, 4.1, 1520.0, 3.34, 96.26, 2.0, 0.17],
+        ['Gliese 876 d', 'M Hot Superterran', 'Radial Velocity', 6.8, 1.8, 3.1, 1438.0, 1.94, 15.23, 9.9, 0.16],
+        ['61 Vir b', 'G Warm Superterran', 'Radial Velocity', 5.1, 1.6, 2.95, 1421.0, 4.22, 27.84, 9.5, 0.15],
+        ['GJ 581 e', 'M Hot Superterran', 'Radial Velocity', 1.9, 1.2, 1.7, 864.0, 3.15, 20.34, 7.0, 0.15],
+        ['Gliese 674 b', 'M Hot Neptunian', 'Radial Velocity', 11.1, 3.9, 0.38, 591.0, 4.69, 14.82, 8.0, 0.15],
+        ['CoRoT-1 b', 'G Hot Jovian', 'Transit', 327.3, 16.7, 109.1, 2030.0, 1.51, 1560.0, 'N/A', 0.15],
+        ['CoRoT-14 b', 'F Hot Jovian', 'Transit', 2415.1, 12.3, 153.8, 2300.0, 1.51, 4270.0, 'N/A', 0.15],
+        ['CoRoT-3 b', 'F Hot Jovian', 'Transit', 6832.7, 11.3, 175.7, 2430.0, 4.26, 2209.0, 'N/A', 0.15],
+        ['CoRoT-18 b', 'G Hot Jovian', 'Transit', 1080.5, 14.7, 85.1, 1900.0, 1.9, 2838.0, 'N/A', 0.14],
+        ['CoRoT-2 b', 'G Hot Jovian', 'Transit', 1061.5, 16.4, 89.2, 1930.0, 1.74, 930.0, 'N/A', 0.14],
+        ['CoRoT-24 b', 'G Hot Terran', 'Transit', 1.6, 2.9, 1.68, 864.0, 5.11, 1956.0, 'N/A', 0.14],
+        ['DMPP-1 d', 'G Hot Superterran', 'Transit', 9.1, 3.4, 1.03, 784.0, 10.24, 203.4, 'N/A', 0.14],
+        ['DMPP-3 A b', 'K Hot Superterran', 'Radial Velocity', 2.7, 1.4, 1.25, 804.0, 7.06, 51.56, 'N/A', 0.14],
+        ['GJ 163 b', 'M Hot Superterran', 'Radial Velocity', 10.6, 2.4, 1.07, 789.0, 8.63, 49.28, 11.5, 0.14],
+        ['GJ 176 b', 'M Hot Superterran', 'Radial Velocity', 8.4, 1.97, 0.76, 707.0, 8.78, 30.72, 10.1, 0.14],
+        ['GJ 3323 b', 'M Hot Superterran', 'Radial Velocity', 2.02, 1.26, 1.15, 794.0, 5.36, 17.41, 2.0, 0.14],
+        ['GJ 3942 b', 'M Hot Superterran', 'Radial Velocity', 7.1, 1.8, 1.0, 774.0, 5.99, 49.28, 'N/A', 0.14],
+        ['GJ 581 b', 'M Hot Neptunian', 'Radial Velocity', 15.6, 4.3, 0.89, 747.0, 5.37, 20.34, 7.0, 0.14],
+        ['GJ 667 C b', 'M Hot Superterran', 'Radial Velocity', 5.9, 1.7, 1.1, 789.0, 7.2, 23.16, 2.0, 0.14],
+        ['GJ 887 b', 'M Hot Superterran', 'Radial Velocity', 4.2, 1.5, 0.9, 758.0, 9.26, 10.72, 7.0, 0.14],
+        ['Gliese 433 b', 'M Warm Neptunian', 'Radial Velocity', 6.0, 2.6, 0.18, 499.0, 7.37, 29.41, 11.0, 0.13],
+        ['DMPP-1 e', 'G Hot Superterran', 'Radial Velocity', 5.8, 2.6, 0.54, 642.0, 18.7, 203.4, 'N/A', 0.13],
+        ['GJ 163 c', 'M Warm Neptunian', 'Radial Velocity', 7.2, 2.9, 0.33, 577.0, 25.63, 49.28, 11.5, 0.13],
+        ['GJ 682 b', 'M Hot Superterran', 'Radial Velocity', 4.4, 1.5, 0.4, 602.0, 17.48, 16.31, 'N/A', 0.13],
+        ['GJ 667 C c', 'M Warm Superterran', 'Radial Velocity', 4.1, 1.8, 0.88, 747.0, 28.14, 23.16, 2.0, 0.13],
+        ['GJ 887 c', 'M Warm Superterran', 'Radial Velocity', 7.6, 1.9, 0.8, 722.0, 21.79, 10.72, 7.0, 0.13],
+        ['24 Boo b', 'G Warm Jovian', 'Radial Velocity', 295.55, 13.9, 29.21, 1421.0, 30.35, 313.32, 2.7, 0.12],
+        ['51 Peg b', 'G Hot Jovian', 'Radial Velocity', 150.0, 13.5, 28.05, 1398.0, 4.23, 50.45, 6.1, 0.12],
+        ['55 Cnc b', 'G Hot Jovian', 'Radial Velocity', 263.1, 13.9, 7.82, 1714.0, 14.65, 40.28, 10.3, 0.12],
+        ['BD-06 1339 b', 'G Hot Jovian', 'Radial Velocity', 276.48, 13.9, 28.52, 1405.0, 3.84, 66.56, 0.4, 0.12],
+        ['BD-10 3166 b', 'G Hot Jovian', 'Radial Velocity', 152.55, 13.5, 33.6, 1478.0, 3.49, 257.81, 10.9, 0.12],
+        ['CoRoT-11 b', 'F Hot Jovian', 'Transit', 740.5, 16.1, 34.2, 1485.0, 2.99, 1827.0, 1.3, 0.12],
+        ['CoRoT-12 b', 'G Hot Jovian', 'Transit', 295.5, 16.4, 33.6, 1478.0, 2.83, 1220.0, 'N/A', 0.12],
+        ['CoRoT-17 b', 'G Hot Jovian', 'Transit', 788.1, 11.4, 24.6, 1350.0, 3.77, 3132.0, 'N/A', 0.12],
+        ['CoRoT-19 b', 'F Hot Jovian', 'Transit', 352.7, 16.8, 21.6, 1300.0, 3.9, 2904.0, 'N/A', 0.12],
+        ['CoRoT-21 b', 'F Hot Jovian', 'Transit', 721.4, 14.6, 36.6, 1520.0, 2.72, 3698.0, 'N/A', 0.12],
+        ['CoRoT-23 b', 'G Hot Jovian', 'Transit', 890.0, 11.9, 21.6, 1300.0, 3.63, 1956.0, 'N/A', 0.12],
+        ['CoRoT-24 c', 'G Hot Neptunian', 'Transit', 15.6, 4.7, 0.46, 618.0, 11.76, 1956.0, 'N/A', 0.12],
+        ['CoRoT-26 b', 'G Hot Jovian', 'Transit', 171.6, 14.1, 17.2, 1215.0, 4.2, 3263.0, 'N/A', 0.12],
+        ['CoRoT-27 b', 'G Hot Jovian', 'Transit', 3336.8, 11.3, 24.6, 1350.0, 3.58, 3481.0, 'N/A', 0.12],
+        ['CoRoT-29 b', 'G Hot Jovian', 'Transit', 282.8, 12.6, 36.6, 1520.0, 2.85, 2937.0, 'N/A', 0.12],
+        ['CoRoT-5 b', 'F Hot Jovian', 'Transit', 146.2, 15.6, 16.6, 1200.0, 4.04, 1305.0, 'N/A', 0.12],
+        ['CoRoT-8 b', 'K Hot Neptunian', 'Transit', 70.2, 6.4, 1.31, 814.0, 6.21, 1230.0, 'N/A', 0.12],
+        ['EPIC 206032309 b', 'M Hot Jovian', 'Transit', 305.1, 13.3, 2.5, 930.0, 2.95, 348.1, 'N/A', 0.12],
+        ['GJ 3090 b', 'M Hot Jovian', 'Radial Velocity', 254.2, 13.9, 3.4, 1485.0, 2.14, 36.4, 'N/A', 0.12],
+        ['GJ 3774 b', 'M Hot Jovian', 'Radial Velocity', 206.6, 14.1, 4.9, 1572.0, 2.7, 42.19, 'N/A', 0.12],
+        ['GJ 581 c', 'M Warm Superterran', 'Radial Velocity', 5.5, 1.6, 0.3, 564.0, 12.92, 20.34, 7.0, 0.12],
+        ['GJ 625 b', 'M Warm Superterran', 'Radial Velocity', 2.8, 1.5, 0.2, 517.0, 14.63, 21.32, 'N/A', 0.12],
+        ['GJ 667 C e', 'M Warm Superterran', 'Radial Velocity', 3.1, 1.5, 0.21, 524.0, 62.24, 23.16, 2.0, 0.12],
+        ['GJ 667 C f', 'M Warm Superterran', 'Radial Velocity', 2.7, 1.4, 0.35, 582.0, 39.03, 23.16, 2.0, 0.12],
+        ['GJ 686 b', 'M Warm Superterran', 'Radial Velocity', 6.6, 1.8, 0.2, 517.0, 15.53, 26.54, 'N/A', 0.12],
+        ['GJ 3323 c', 'M Warm Superterran', 'Radial Velocity', 2.31, 1.36, 0.29, 564.0, 40.54, 17.41, 2.0, 0.12],
+        ['GJ 3998 b', 'M Warm Neptunian', 'Radial Velocity', 2.5, 1.4, 0.2, 517.0, 13.74, 49.82, 'N/A', 0.12],
+        ['GJ 411 b', 'M Warm Superterran', 'Radial Velocity', 3.0, 1.5, 0.2, 517.0, 12.94, 8.31, 5.0, 0.12]
+      ];
+
+      const tr = document.createElement('tr');
+      header.forEach((col, i) => {
+        const th = document.createElement('th');
+        th.textContent = col;
+        th.dataset.index = i;
+        th.dataset.order = 'desc';
+        th.addEventListener('click', () => {
+          sortTable(i, th.dataset.order);
+          th.dataset.order = th.dataset.order === 'desc' ? 'asc' : 'desc';
+        });
+        tr.appendChild(th);
+      });
+      thead.appendChild(tr);
+
+      function render() {
+        tbody.innerHTML = '';
+        const searchTerm = searchInput.value.toLowerCase();
+        let filtered = rows;
+
+        if (searchTerm) {
+          filtered = filtered.filter(row => row[0].toLowerCase().includes(searchTerm));
+        }
+
+        const filterValue = zoneFilter.value;
+        const ESI_INDEX = 10;
+        if (filterValue === 'conservative') {
+          filtered = filtered.filter(row => {
+            const esi = parseFloat(row[ESI_INDEX]);
+            return !isNaN(esi) && esi > 0.85;
+          });
+        } else if (filterValue === 'optimistic') {
+          filtered = filtered.filter(row => {
+            const esi = parseFloat(row[ESI_INDEX]);
+            return !isNaN(esi) && esi <= 0.85;
+          });
+        }
+        
+        filtered.forEach(r => {
+          const tr = document.createElement('tr');
+          r.forEach(c => {
+            const td = document.createElement('td'); 
+            td.textContent = c; 
+            tr.appendChild(td);
+          });
+          tbody.appendChild(tr);
+        });
+      }
+
+      searchInput.addEventListener('input', render);
+      zoneFilter.addEventListener('change', render);
+      render();
+
+      function sortTable(idx, order) {
+        rows.sort((a, b) => {
+          const valA = a[idx];
+          const valB = b[idx];
+          const numA = parseFloat(valA);
+          const numB = parseFloat(valB);
+          
+          if (!isNaN(numA) && !isNaN(numB)) {
+             return order === 'desc' ? numB - numA : numA - numB;
+          }
+          return order === 'desc' ? String(valB).localeCompare(String(valA)) : String(valA).localeCompare(String(valB));
+        });
+        render();
+      }
+  </script>
+
+</body>
+</html>
+
